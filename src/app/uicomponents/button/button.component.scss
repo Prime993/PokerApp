@@ -1,0 +1,34 @@
+button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+
+  &.primary {
+    background: #003a99;
+    color: #fff;
+
+    &:hover:not(:disabled) {
+      background: #004fcc;
+      transform: translateY(-2px);
+    }
+  }
+
+  &.secondary {
+    background: #f4f5f7;
+    color: #172b4d;
+    border: 1px solid #dfe1e6;
+
+    &:hover {
+      background: #e9ebee;
+    }
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}

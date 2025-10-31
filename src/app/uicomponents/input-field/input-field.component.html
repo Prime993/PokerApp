@@ -1,0 +1,10 @@
+<div class="form-group">
+  <label *ngIf="label">{{ label }}</label>
+  <input
+    [type]="type"
+    [value]="model"
+    (input)="updateModel($event)"
+    [placeholder]="placeholder"
+    [name]="name"
+  />
+</div>

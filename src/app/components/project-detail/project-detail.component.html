@@ -1,0 +1,52 @@
+<div class="project-detail-wrapper">
+  <app-card>
+    <h2>{{ projectName }}</h2>
+    <p>Filtra gli ultimi 10 task per story points:</p>
+
+    <div class="filter-section">
+      <app-input-field
+        label="Story Points"
+        type="text"
+        [model]="storyPointsInput"
+        (modelChange)="storyPointsInput = $event"
+        placeholder="Inserisci un numero"
+      ></app-input-field>
+
+      <app-button
+        label="Cerca"
+        (click)="onSearch()"
+        [disabled]="isLoading || storyPointsInput.trim() === ''"
+      ></app-button>
+    </div>
+
+    <div *ngIf="hasSearched">
+      <div *ngIf="isLoading" class="loading">Caricamento...</div>
+
+      <ul *ngIf="!isLoading && tasks.length > 0" class="task-list">
+        <li *ngFor="let task of tasks">
+          <div class="task-header">
+            <strong>{{ task.projectName }}</strong> — {{ task.storyPoints }} SP
+          </div>
+          <div class="task-body">
+            <p><strong>Titolo:</strong> {{ task.title }}</p>
+            <p><strong>Data chiusura:</strong> {{ task.closeDate | date:'dd/MM/yyyy' }}</p>
+            <p><strong>Assegnato a:</strong> {{ task.assignee }}</p>
+          </div>
+        </li>
+      </ul>
+
+      <p *ngIf="!isLoading && tasks.length === 0" class="no-results">
+        Nessun elemento disponibile per i criteri selezionati.
+      </p>
+    </div>
+
+    <div class="header-back">
+      <app-button
+        label="Torna ai progetti"
+        (click)="goToProjectList()"
+        variant="secondary"
+        size="small"
+      ></app-button>
+    </div>
+  </app-card>
+</div>

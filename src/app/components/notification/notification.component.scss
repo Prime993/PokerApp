@@ -1,0 +1,63 @@
+.notification {
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 280px;
+  max-width: 400px;
+  padding: 0.9rem 1.4rem;
+  border-radius: 8px;
+
+  font-family: "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+
+  color: #ffffff;
+  background-color: #003a99; // coerente con il bottone login
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  text-align: center;
+
+  animation: fadeInOut 3s ease forwards;
+  backdrop-filter: blur(4px);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+
+  &.error {
+    background-color: #de350b; // rosso errore coerente con .error nel login
+  }
+}
+
+/* 🔄 Animazioni */
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+  }
+  10% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  90% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+  }
+}
+
+/* 💻 Responsive */
+@media (max-width: 480px) {
+  .notification {
+    max-width: 90%;
+    font-size: 14px;
+    padding: 0.8rem 1.2rem;
+  }
+}

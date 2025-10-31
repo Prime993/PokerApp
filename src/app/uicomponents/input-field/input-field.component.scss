@@ -1,0 +1,28 @@
+.form-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+
+  label {
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #5e6c84;
+    font-size: 14px;
+  }
+
+  input {
+    width: calc(100% - 20px);
+    padding: 10px;
+    border: 1px solid #dfe1e6;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+
+    &:focus {
+      border-color: #4c9aff;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(76, 154, 255, 0.2);
+    }
+  }
+}

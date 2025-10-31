@@ -1,0 +1,44 @@
+<div class="project-list-wrapper">
+  <app-card>
+    <!-- HEADER CON ICONA DI USCITA -->
+    <div class="header">
+      <span 
+        class="material-symbols-outlined logout-icon" 
+        (click)="logout()" 
+        title="Esci">
+        logout
+      </span>
+      <div class="logo">
+        <img src="assets/logo.png" alt="SVPokerApp Logo" />
+      </div>
+    </div>
+
+    <h2>I tuoi progetti Jira</h2>
+
+    <!-- 🔍 Barra di ricerca -->
+    <div class="search-bar">
+      <input
+        type="text"
+        placeholder="Cerca progetto..."
+        [(ngModel)]="searchTerm"
+      />
+    </div>
+
+    <!-- 📋 Lista progetti -->
+    <div class="project-list-container">
+      <ul>
+        <li *ngFor="let project of filteredProjects" (click)="openProject(project)">
+          <div class="project-item">
+            <div class="project-info">
+              <strong>{{ project.name }}</strong>
+              <p>{{ project.description }}</p>
+            </div>
+            <div class="project-icon">
+              <span class="material-symbols-outlined">arrow_forward_ios</span>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </app-card>
+</div>

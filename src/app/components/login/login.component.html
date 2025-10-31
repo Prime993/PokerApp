@@ -1,0 +1,41 @@
+<div class="login-wrapper">
+  <app-card>
+    
+    <div class="logo">
+      <img src="assets/logo.png" alt="SVPokerApp Logo" />
+    </div>
+
+    <h2 class="app-name">SVPokerApp</h2>
+
+    <div class="input-fields">
+      <app-input-field
+        label="Email"
+        type="email"
+        name="email"
+        placeholder="email@example.com"
+        [(model)]="email"
+      ></app-input-field>
+
+      <app-input-field
+        label="Password"
+        type="password"
+        name="password"
+        placeholder="********"
+        [(model)]="password"
+      ></app-input-field>
+    </div>
+
+    <div class="button-wrapper">
+      <app-button
+        type="submit"
+        [label]="'Accedi'"
+        [disabled]="loading"
+        (click)="login()"
+      >
+        <span *ngIf="loading" class="loader"></span>
+      </app-button>
+    </div>
+
+    <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  </app-card>
+</div>
