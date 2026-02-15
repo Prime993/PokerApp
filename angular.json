@@ -68,11 +68,14 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
             "production": {
-              "buildTarget": "SVPokerApp:build:production"
+            "buildTarget": "SVPokerApp:build:production"
             },
-            "development": {
+          "development": {
               "buildTarget": "SVPokerApp:build:development"
             }
           },
@@ -104,5 +107,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }

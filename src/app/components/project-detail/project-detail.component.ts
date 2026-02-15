@@ -6,6 +6,7 @@ import { NotificationService } from '../../services/notification.service';
 import { CardComponent } from '../../uicomponents/card/card.component';
 import { InputFieldComponent } from '../../uicomponents/input-field/input-field.component';
 import { ButtonComponent } from '../../uicomponents/button/button.component';
+import { JiraApiService } from '../../services/jira-api.service';
 
 @Component({
   selector: 'app-project-detail',
@@ -27,7 +28,8 @@ export class ProjectDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private jiraApi: JiraApiService
   ) {}
 
   ngOnInit() {
@@ -59,23 +61,17 @@ export class ProjectDetailComponent implements OnInit {
     this.isLoading = true;
     this.hasSearched = true;
 
-    setTimeout(() => {
-      try {
-        // Mock di dati (come se arrivassero dal backend)
-        const allTasks = [
-          { projectName: 'PokerApp', title: 'Implement login', closeDate: '2025-11-02', assignee: 'Mario Rossi', storyPoints: 8 },
-          { projectName: 'PokerApp', title: 'Fix layout', closeDate: '2025-11-05', assignee: 'Luca Bianchi', storyPoints: 8 },
-          { projectName: 'PokerApp', title: 'Add search bar', closeDate: '2025-11-06', assignee: 'Anna Verdi', storyPoints: 8 },
-          { projectName: 'PokerApp', title: 'Optimize styles', closeDate: '2025-11-07', assignee: 'Sara Neri', storyPoints: 8 },
-          { projectName: 'PokerApp', title: 'Refactor auth guard', closeDate: '2025-11-08', assignee: 'Giulia Ferri', storyPoints: 3 },
-          { projectName: 'PokerApp', title: 'Create detail view', closeDate: '2025-11-09', assignee: 'Marco Gialli', storyPoints: 8 },
-          { projectName: 'PokerApp', title: 'Deploy mock server', closeDate: '2025-11-10', assignee: 'Stefano Blu', storyPoints: 8 },
-        ];
-
-        // Filtra per story points e ordina per data (decrescente)
-        this.tasks = allTasks
-          .filter(t => t.storyPoints === this.storyPoints)
-          .sort((a, b) => new Date(b.closeDate).getTime() - new Date(a.closeDate).getTime())
+    this.jiraApi.getIssues(this.projectId, this.storyPoints).subscribe({
+      next: (issues) => {
+        this.tasks = issues
+          .map((i: any) => ({
+            projectName: i.fields?.project?.name ?? this.projectName,
+            title: i.fields?.summary ?? '',
+            closeDate: i.fields?.updated ?? i.fields?.created ?? '',
+            assignee: i.fields?.assignee?.displayName ?? 'Unassigned',
+            storyPoints: i.fields?.storyPoints ?? this.storyPoints
+          }))
+          .sort((a: any, b: any) => new Date(b.closeDate).getTime() - new Date(a.closeDate).getTime())
           .slice(0, 10);
 
         if (this.tasks.length === 0) {
@@ -89,14 +85,16 @@ export class ProjectDetailComponent implements OnInit {
             type: 'success'
           });
         }
-      } catch {
+
+        this.isLoading = false;
+      },
+      error: () => {
         this.notificationService.showMessage({
-          message: 'Errore di comunicazione con il backend. Riprova più tardi.',
+          message: 'Errore di comunicazione con il backend (sessione scaduta o credenziali non valide).',
           type: 'error'
         });
-      } finally {
         this.isLoading = false;
       }
-    }, 800);
+    });
   }
 }

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -8,6 +8,7 @@ import { InputFieldComponent } from '../../uicomponents/input-field/input-field.
 import { ButtonComponent } from '../../uicomponents/button/button.component';
 import { NotificationComponent } from '../notification/notification.component';
 import { NotificationService } from '../../services/notification.service';
+import { JiraApiService } from '../../services/jira-api.service';
 
 @Component({
   selector: 'app-login',
@@ -22,7 +23,7 @@ import { NotificationService } from '../../services/notification.service';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   email: string = '';
   password: string = '';
   loading: boolean = false;
@@ -30,21 +31,30 @@ export class LoginComponent {
 
   constructor(
     private notificationService: NotificationService,
-    private router: Router
-  ) {}
+    private router: Router,
+    private jiraApi: JiraApiService
+  ) { }
+
+  ngOnInit(): void {
+  this.jiraApi.session().subscribe({
+    next: (r) => {
+      if (r.authenticated) {
+        this.router.navigate(['/project-list']);
+      }
+    },
+    error: () => {
+      // Se la session non è disponibile o fallisce, restiamo nella pagina di login
+    }
+  });
+}
 
   login(): void {
     this.loading = true;
     this.errorMessage = '';
 
-    // Simula una chiamata asincrona di login
-    setTimeout(() => {
-      this.loading = false;
-
-      const isValidUser = this.email === 'admin' && this.password === '1234';
-
-      if (isValidUser) {
-        localStorage.setItem('isAuthenticated', 'true');
+    this.jiraApi.login(this.email, this.password).subscribe({
+      next: () => {
+        this.loading = false;
 
         this.notificationService.showMessage({
           message: 'Login effettuato con successo!',
@@ -52,16 +62,20 @@ export class LoginComponent {
         });
 
         this.router.navigate(['/project-list']);
-      } else {
-        this.errorMessage = 'Credenziali errate';
+      },
+      error: () => {
+        this.loading = false;
+
+        this.errorMessage = 'Credenziali Jira non valide';
+
         this.notificationService.showMessage({
-          message: 'Credenziali errate, riprova.',
+          message: 'Login fallito.',
           type: 'error'
         });
 
-        // Cancella il messaggio d’errore dopo 3 secondi
         setTimeout(() => (this.errorMessage = ''), 3000);
       }
-    }, 1000);
+    });
+
   }
 }
