@@ -73,25 +73,66 @@ public class JiraService
     }
 
 
-    public async Task<List<JiraIssue>> GetIssuesAsync(string projectIdOrKey, int? storyPoints, int maxResults = 10)
+    public async Task<bool> HasEffortEstimationAsync(string projectId)
+    {
+        if (string.IsNullOrWhiteSpace(projectId))
+            throw new ArgumentException("projectId is required", nameof(projectId));
+
+        var url =
+            $"field/search?projectIds={Uri.EscapeDataString(projectId)}&query={Uri.EscapeDataString("Effort Estimation")}&maxResults=50";
+
+        var req = await CreateRequestAsync(HttpMethod.Get, url);
+        var res = await _http.SendAsync(req);
+        var content = await res.Content.ReadAsStringAsync();
+
+        if (!res.IsSuccessStatusCode)
+            throw new Exception($"Jira API error ({res.StatusCode}): {content}");
+
+        var obj = JObject.Parse(content);
+        var values = (JArray?)obj["values"] ?? new JArray();
+
+        if (values.Count == 0)
+            return false;
+
+        return values.Any(x =>
+            string.Equals((string?)x["id"], "customfield_12345", StringComparison.OrdinalIgnoreCase) &&
+            string.Equals((string?)x["name"], "Effort Estimation", StringComparison.OrdinalIgnoreCase)
+        );
+    }
+
+    public async Task<List<JiraIssue>> GetIssuesAsync(
+            string projectIdOrKey,
+            int? value,
+            bool useEffortEstimation,
+            int maxResults = 10)
     {
         var projectClause = projectIdOrKey.All(char.IsDigit)
             ? $"project = {projectIdOrKey}"
             : $"project = \"{projectIdOrKey}\"";
 
+        var jqlFieldName = useEffortEstimation ? $"\"Effort Estimation\"" : $"\"Story Points\"";
         var jql = projectClause;
-        if (storyPoints.HasValue)
+
+        if (value.HasValue)
         {
-            jql += $" AND \"Story Points\" = {storyPoints.Value}";
+            jql += $" AND {jqlFieldName} = {value.Value}";
         }
+
         jql += " AND statusCategory = Done";
         jql += " ORDER BY created DESC";
+
+        var fields = new List<string>
+        {
+            "summary", "status", "assignee", "project", "created", "updated"
+        };
+
+        fields.Add(useEffortEstimation ? "customfield_12345" : "customfield_10035");
 
         var body = new
         {
             jql,
             maxResults,
-            fields = new[] { "summary", "status", "assignee", "project", "created", "updated", "customfield_10035" }
+            fields = fields.ToArray()
         };
 
         var req = await CreateRequestAsync(HttpMethod.Post, "search/jql");

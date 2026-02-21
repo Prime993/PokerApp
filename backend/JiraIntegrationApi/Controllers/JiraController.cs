@@ -1,4 +1,4 @@
-﻿using JiraIntegrationApi.Models;
+using JiraIntegrationApi.Models;
 using JiraIntegrationApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -87,14 +87,29 @@ public class JiraController : ControllerBase
         return Ok(new { hasStoryPoints = hasSP });
     }
 
+
     // =========================
-    // ISSUES BY STORY POINTS
+    // EFFORT ESTIMATION CHECK
+    // =========================
+    [HttpGet("projects/{projectId}/has-effort-estimation")]
+    public async Task<IActionResult> HasEffortEstimation(string projectId)
+    {
+        if (!await _session.IsAuthenticatedAsync())
+            return Unauthorized();
+
+        var hasEffort = await _jira.HasEffortEstimationAsync(projectId);
+        return Ok(new { hasEffortEstimation = hasEffort });
+    }
+
+    // =========================
+    // ISSUES BY STORY POINTS / EFFORT
     // =========================
     [HttpGet("issues")]
     public async Task<IActionResult> Issues(
         [FromQuery] string? projectId,
         [FromQuery] string? projectKey,
-        [FromQuery] int storyPoints)
+        [FromQuery] int value,                   
+        [FromQuery] bool useEffortEstimation = false)
     {
         if (!await _session.IsAuthenticatedAsync())
             return Unauthorized();
@@ -106,13 +121,23 @@ public class JiraController : ControllerBase
 
         if (projectId != null)
         {
-            var hasSP = await _jira.HasStoryPointsAsync(projectId);
-            if (!hasSP)
-                return BadRequest("Selected project does not have Story Points enabled");
+            if (useEffortEstimation)
+            {
+                var hasEffort = await _jira.HasEffortEstimationAsync(projectId);
+                if (!hasEffort)
+                    return BadRequest("Selected project does not have Effort Estimation enabled");
+            }
+            else
+            {
+                var hasSP = await _jira.HasStoryPointsAsync(projectId);
+                if (!hasSP)
+                    return BadRequest("Selected project does not have Story Points enabled");
+            }
         }
 
-        var issues = await _jira.GetIssuesAsync(project, storyPoints);
+        var issues = await _jira.GetIssuesAsync(project, value, useEffortEstimation);
 
         return Ok(issues);
     }
+
 }
