@@ -1,0 +1,14 @@
+<div class="switch-wrapper">
+  <span class="switch-label">Story Points</span>
+
+  <label class="switch">
+    <input
+      type="checkbox"
+      [(ngModel)]="isEffortMode"
+      (change)="emitChange()"
+    />
+    <span class="slider"></span>
+  </label>
+
+  <span class="switch-label">Effort Estimation</span>
+</div>

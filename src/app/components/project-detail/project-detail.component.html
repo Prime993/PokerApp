@@ -1,11 +1,13 @@
 <div class="project-detail-wrapper">
   <app-card>
     <h2>{{ projectName }}</h2>
-    <p>Filtra gli ultimi 10 task per story points:</p>
+    <p>Filtra gli ultimi 10 task per:</p>
+
+    <app-toggle-filter (filterChange)="onFilterChange($event)"></app-toggle-filter> 
 
     <div class="filter-section">
       <app-input-field
-        label="Story Points"
+        [label]="filterLabel"
         type="text"
         [model]="storyPointsInput"
         (modelChange)="storyPointsInput = $event"

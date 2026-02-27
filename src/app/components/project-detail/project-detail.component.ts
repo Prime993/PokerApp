@@ -7,11 +7,12 @@ import { CardComponent } from '../../uicomponents/card/card.component';
 import { InputFieldComponent } from '../../uicomponents/input-field/input-field.component';
 import { ButtonComponent } from '../../uicomponents/button/button.component';
 import { JiraApiService } from '../../services/jira-api.service';
+import { ToggleFilterComponent } from '../../uicomponents/toggle-filter/toggle-filter.component';
 
 @Component({
   selector: 'app-project-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, CardComponent, InputFieldComponent, ButtonComponent],
+  imports: [CommonModule, FormsModule, CardComponent, InputFieldComponent, ButtonComponent,ToggleFilterComponent],
   templateUrl: './project-detail.component.html',
   styleUrls: ['./project-detail.component.scss']
 })
@@ -20,10 +21,20 @@ export class ProjectDetailComponent implements OnInit {
   projectName: string = '';
   storyPointsInput: string = '';
   storyPoints: number = 0;
+  effortEstimationInput: string = '';
+  effortEstimation: number = 0;
 
   tasks: any[] = [];
   isLoading = false;
   hasSearched = false;
+  filterType: 'storyPoints' | 'effortEstimation' = 'storyPoints'; //toggle
+
+  get filterLabel(): string {
+  return this.filterType === 'storyPoints'
+    ? 'Story Points'
+    : 'Effort Estimation (hrs)';
+}
+
 
   constructor(
     private route: ActivatedRoute,
@@ -43,6 +54,8 @@ export class ProjectDetailComponent implements OnInit {
     this.router.navigate(['/project-list']);
   }
 
+  onFilterChange(type: 'storyPoints' | 'effortEstimation') { this.filterType = type; } //toggle
+
   onSearch() {
     const trimmed = this.storyPointsInput.trim();
 
@@ -50,7 +63,7 @@ export class ProjectDetailComponent implements OnInit {
       this.storyPoints = 0;
     } else if (isNaN(Number(trimmed))) {
       this.notificationService.showMessage({
-        message: 'Inserisci un valore numerico valido per gli story points.',
+        message: 'Inserisci un valore numerico valido.',
         type: 'error'
       });
       return;
