@@ -74,7 +74,9 @@ export class ProjectDetailComponent implements OnInit {
     this.isLoading = true;
     this.hasSearched = true;
 
-    this.jiraApi.getIssues(this.projectId, this.storyPoints).subscribe({
+    const isEffortEstimation = this.filterType==='effortEstimation';
+
+    this.jiraApi.getIssues(this.projectId, this.storyPoints,isEffortEstimation).subscribe({
       next: (issues) => {
         this.tasks = issues
           .map((i: any) => ({

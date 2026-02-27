@@ -24,8 +24,8 @@ export class JiraApiService {
     return this.http.get<any[]>(`${this.baseUrl}/projects`);
   }
 
-  getIssues(projectId: string, storyPoints: number): Observable<any[]> {
-    const params = new HttpParams().set('projectId', projectId).set('storyPoints', storyPoints);
+  getIssues(projectId: string, insertedValue: number,isEffortEstimation:boolean): Observable<any[]> {
+    const params = new HttpParams().set('projectId', projectId).set('storyPoints', insertedValue).set('useEffortEstimation',isEffortEstimation);
     return this.http.get<any[]>(`${this.baseUrl}/issues`, { params });
   }
 }
